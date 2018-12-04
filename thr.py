@@ -2,10 +2,8 @@ import time
 import threading
 from random import randint
 
-global thread_var
-
-answer = ""
-
+cycle = True
+thread_var = 0
 locker = threading.Lock()
 
 def thread_func(i):
@@ -13,27 +11,36 @@ def thread_func(i):
     time.sleep(sleep_time)
     locker.acquire()
     try:
-        print("Sleep for {0} seconds".format(sleep_time))
+        print "Thread #", i
+        print "Sleep for", sleep_time , "seconds"
+        global thread_var 
         thread_var = randint(0, 10)
-        print("The mutex value is {0}".format(thread_var))
+        print "The mutex value is", thread_var
     finally:
         locker.release()
 
 
-if __name__ == "__main__":
-
-    while answer != "n":
-        start_time = time.time()
-        threadz = []
-        for i in range(1, 6):
-            thr = threading.Thread(target=thread_func, args = (i,))
-            thr.start()
-            threadz.append(thr)
+def main_func(thread_count):
+    start_time = time.time()
+    threadz = []
+    for i in range(0, thread_count):
+        thr = threading.Thread(target=thread_func, args = (i,))
+        thr.start()
+        threadz.append(thr)
 
 
-        for thread in threadz:
-            thread.join()
+    for thread in threadz:
+        thread.join()
 
-        print("The time of programm is {0} seconds ".format(time.time() - start_time))
-        answer = str(raw_input("contunue? "))
+    print "The final mutex value is", thread_var
+    print "The time of programm is", time.time() - start_time, " seconds"
+
+while cycle:
+    
+    threads = int(raw_input("Thread count? "))
+    main_func(threads)
+    answer = str(raw_input("Contunue? "))
+    if answer == "n":
+        main_func(threads)
+        cycle = False
 
